@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html ng-app="FSApp" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Express Demo</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,800" rel="stylesheet">
+</head>
+<body>
+
+  <nav>
+    <a class="title" href="#!/cart-items">Shopping Cart</a>
+  </nav>
+ 
+
+  <ng-view></ng-view>
+
+  <script src="https://code.angularjs.org/1.6.5/angular.min.js"></script>
+  <script src="https://code.angularjs.org/1.6.5/angular-route.min.js"></script>
+  <script src="js/module/module.js"></script>
+  <script src="js/config/config.js"></script>
+  <script src="js/components/shoppinglist.js"></script>
+  <script src="js/services/cartservice.js"></script>
+</body>
+</html>
