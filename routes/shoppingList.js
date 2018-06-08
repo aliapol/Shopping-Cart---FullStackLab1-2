@@ -1,79 +1,46 @@
 "use strict";
 const express = require("express");// Require Express
-const cartRouter = express.Router();// Declare a Router object to handle the routes for our shopping list
-
-const shoppingList = [
-  {
-    "name": "Cleaning Supplies",
-    "price": 15,
-    "quantity": 1,
-    "id": 0
-  },
-  {
-    "name": "Coffee",
-    "price": 15,
-    "quantity": 1,
-    "id": 1
-  },
-  {
-    "name": "Beets",
-    "price": 15,
-    "quantity": 2,
-    "id": 2
-  },
-  {
-    "name": "Cheese",
-    "price": 3,
-    "quantity": 4,
-    "id": 3
-  }
-];
-
-let idCount = 4; //declare a variable so we can incriment ids
+const cartRouter = express.Router();// Declare a Router object to handle the routes for our shoppingList
+const pg = require("pg"); //This connects us to pg-connection-pool.js
+const pool = require("../pg-connection-pool"); //I think this does too
 
 // Four routes, one for each method
-cartRouter.get("/cart-items", (req, res) => { //cart is just an endpoint name. has nothing to do with the name of file or array/variable
-  res.send(shoppingList); //references the array"
+
+//GET
+cartRouter.get("/cart-items", (req, res) => { //cart-items is just an endpoint name. has nothing to do with the name of file or array/variable
+  pool.query("SELECT * FROM shoppingCart ORDER BY product ASC").then((result) => { //shoppingCart is the name of the table in my database!
+      res.send(result.rows);
+  })
 });
 
+
+//POST
 cartRouter.post("/cart-items", (req, res) => { //cart-items is just an endpoint name. 
-  
-  shoppingList.push({
-    name: req.body.name,
-    price: req.body.price,
-    quanity: req.body.quantity,
-    id: idCount++
+  pool.query("INSERT INTO shoppingCart(product,price,quantity) VALUES($1::text, $2::int, $3::int)", [req.body.product, req.body.price, req.body.quantity]).then(() => {
+    pool.query("SELECT * FROM shoppingCart ORDER BY product ASC").then((result) =>  {
+      res.send(result.rows);
+    });
   });
-  console.log(req.body);
-  res.send(shoppingList); //this "shoppingList" references the array
+ });
+
+
+//DELETE
+ cartRouter.delete("/cart-items/:id", (req, res) => { //cart-items is just an endpoint name. has nothing to do with the name of file or array/variable
+  pool.query("DELETE FROM shoppingCart WHERE id=$1::int", [req.params.id]).then(() => { //deleting that id
+    pool.query("SELECT * FROM shoppingCart ORDER BY product ASC").then((result) => { //then getting the list again
+      res.send(result.rows);
+  });
+});
 });
 
-cartRouter.delete("/cart-items/:id", (req, res) => { //cart-items is just an endpoint name. has nothing to do with the name of file or array/variable
-    
-    for (let item of shoppingList) {
-    if (item.id == req.params.id) {
-      shoppingList.splice(shoppingList.indexOf(item), 1);
-      console.log(req.params.id);
-    }
-  }
-  res.send(shoppingList); //references the array"
-});
 
-cartRouter.put("/cart-items/:id", (req, res) => { //cart is just an endpoint name. has nothing to do with the name of file or array/variable
-    
-    for (let item of shoppingList) {
-    if (item.id == req.params.id) {
-      shoppingList.splice(shoppingList.indexOf(item), 1, {
-        name: req.body.name,
-        price: req.body.price,
-        quanity: req.body.quantity,
-        id: item.id
-      });
-      console.log(req.body);
-      console.log(req.params.id);
-    }
-  }
-  res.send(shoppingList); //references the array"
+//PUT (UPDATE)
+ cartRouter.put("/cart-items/:id", (req, res) => { //cart is just an endpoint name. has nothing to do with the name of file or array/variable
+  pool.query("UPDATE shoppingCart SET product=$1::text, price=$2::int, quantity=$3::int WHERE id=$4::int", [req.body.product, req.body.price, req.body.quantity, req.params.id]).then(() => { //updating that id
+    pool.query("SELECT * FROM shoppingCart ORDER BY product ASC").then((result) => { //then getting the list again
+      res.send(result.rows);
+  });
+});
 });
 
 

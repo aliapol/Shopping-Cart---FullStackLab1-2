@@ -7,5 +7,8 @@ angular
       .when("/cart-items", {
         template: `<shopping-list></shopping-list>`
       })
+      .otherwise("/cart-items", {
+        template: `<shopping-list></shopping-list>`
+      })
       
   });
